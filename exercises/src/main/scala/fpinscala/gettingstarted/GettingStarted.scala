@@ -35,11 +35,13 @@ object MyModule {
   }
 
   // Exercise 1: Write a function to compute the nth fibonacci number
+  def fib(n: Int): Int = {
+      def fibloop(n: Int, prev: Int, cur: Int ): Int = n match {
+          case 0 => prev
+          case _ => fibloop(n - 1, cur, prev + cur)
+      }
 
-  def fib(n: Int): Int = n match {
-      case 0 => 0
-      case 1 => 1
-      case _ => fib(n - 1) + fib(n - 2)
+      fibloop(n, 0, 1)
   }
 
   // This definition and `formatAbs` are very similar..
