@@ -1,5 +1,9 @@
 package fpinscala.datastructures
 
+import com.sun.crypto.provider.AESCipher.AES128_CBC_NoPadding
+
+import scala.collection.immutable
+
 sealed trait List[+A] // `List` data type, parameterized on a type, `A`
 case object Nil extends List[Nothing] // A `List` data constructor representing the empty list
 /* Another data constructor, representing nonempty lists. Note that `tail` is another `List[A]`,
@@ -64,5 +68,35 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = ???
 
-  def map[A,B](l: List[A])(f: A => B): List[B] = ???
+    def addOne(l: List[Int]): List[Int] = {
+        foldRight[Int, List[Int]](l, Nil:List[Int])((i, l) => Cons(i+1, l))
+    }
+
+    def doubleToString(l: List[Double]): List[String] = {
+        foldRight[Double, List[String]](l, Nil:List[String])((d, l) => Cons(d.toString, l))
+    }
+
+    def map[A,B](l: List[A])(f: A => B): List[B] = {
+        foldRight[A, List[B]](l, Nil:List[B])((h, t) => Cons(f(h), t))
+    }
+
+    def filter[A](as: List[A])(f: A => Boolean): List[A] = {
+        foldRight[A, List[A]](as, Nil:List[A])((h, t) => if (f(h)) Cons(h, t) else t)
+    }
+
+    def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = {
+        foldRight[A, List[B]](as, Nil:List[B])((h, t) => append(f(h), t))
+    }
+
+    def zip(xs: List[Int], ys: List[Int]): List[Int] = (xs, ys) match {
+        case (_, Nil) => Nil
+        case (Nil, _) => Nil
+        case (Cons(h1, t1), Cons(h2, t2)) => Cons(h1+h2, zip(t1, t2))
+    }
+
+    def zipWith[A, B](xs: List[A], ys: List[A])(f: (A, A) => B): List[B] = {
+        case (_, Nil) => Nil
+        case (Nil, _) => Nil
+        case (Cons(h1: A, t1: List[A]), Cons(h2: A, t2: List[A])) => Cons(f(h1, h2), zipWith(t1, t2)(f))
+    }
 }
