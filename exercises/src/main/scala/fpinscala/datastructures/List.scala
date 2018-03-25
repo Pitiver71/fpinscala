@@ -1,9 +1,5 @@
 package fpinscala.datastructures
 
-import com.sun.crypto.provider.AESCipher.AES128_CBC_NoPadding
-
-import scala.collection.immutable
-
 sealed trait List[+A] // `List` data type, parameterized on a type, `A`
 case object Nil extends List[Nothing] // A `List` data constructor representing the empty list
 /* Another data constructor, representing nonempty lists. Note that `tail` is another `List[A]`,
