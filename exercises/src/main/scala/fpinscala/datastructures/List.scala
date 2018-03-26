@@ -111,9 +111,16 @@ object List { // `List` companion object. Contains functions for creating and wo
         case (Cons(h1, t1), Cons(h2, t2)) => Cons(h1+h2, zip(t1, t2))
     }
 
-    def zipWith[A, B](xs: List[A], ys: List[A])(f: (A, A) => B): List[B] = {
+    def zipWith[A, B](xs: List[A], ys: List[A])(f: (A, A) => B): List[B] = (xs, ys) match {
         case (_, Nil) => Nil
         case (Nil, _) => Nil
         case (Cons(h1: A, t1: List[A]), Cons(h2: A, t2: List[A])) => Cons(f(h1, h2), zipWith(t1, t2)(f))
+    }
+
+    def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = sup match {
+        case Cons(sub, _) => true
+        case Cons(_, sub) => true
+        //case Cons(_, Cons(sub, _)) => true
+        case _ => false
     }
 }
