@@ -30,19 +30,59 @@ object RNG {
       (f(a), rng2)
     }
 
-  def nonNegativeInt(rng: RNG): (Int, RNG) = ???
+  def nonNegativeInt(rng: RNG): (Int, RNG) = rng.nextInt match {
+    case (i, r) if i == Int.MinValue => (Int.MaxValue, r)
+    case (i, r) if i < 0 => (i * -1, r)
+    case (i, r) => (i, r)
+  }
 
-  def double(rng: RNG): (Double, RNG) = ???
+  def double(rng: RNG): (Double, RNG) = {
+    val t = RNG.nonNegativeInt(rng)
+    (t._1.toDouble, t._2)
+  }
 
-  def intDouble(rng: RNG): ((Int,Double), RNG) = ???
+  def double(): Rand[Double] = map(nonNegativeInt)(_.toDouble)
 
-  def doubleInt(rng: RNG): ((Double,Int), RNG) = ???
+  def intDouble(rng: RNG): ((Int,Double), RNG) = {
+    val int = RNG.nonNegativeInt(rng)
+    val double = RNG.double(rng)
 
-  def double3(rng: RNG): ((Double,Double,Double), RNG) = ???
+    ((int._1, double._1), int._2)
+  }
 
-  def ints(count: Int)(rng: RNG): (List[Int], RNG) = ???
+  def doubleInt(rng: RNG): ((Double,Int), RNG) = {
+    val t = intDouble(rng)
+    ((t._1._2, t._1._1), t._2)
+  }
 
-  def map2[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = ???
+  def double3(rng: RNG): ((Double,Double,Double), RNG) = {
+    val d1 = RNG.double(rng)
+    val d2 = RNG.double(d1._2)
+    val d3 = RNG.double(d2._2)
+
+    ((d1._1, d2._1, d3._1), d3._2)
+  }
+
+  def ints(count: Int)(rng: RNG): (List[Int], RNG) = {
+    @scala.annotation.tailrec
+    def loop(count: Int, acc: (List[Int], RNG)): (List[Int], RNG) = {
+      count match {
+        case 0 => acc
+        case _ =>
+          val (i, r) = acc._2.nextInt
+          loop( count -1, (i :: acc._1, r))
+      }
+    }
+
+    loop(count, (List.empty[Int], rng))
+  }
+
+  def map2[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+    rng => {
+      val (a, r1) = ra(rng)
+      val (b, r2) = rb(r1)
+      (f(a,b), r2)
+    }
 
   def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
 
